@@ -2,16 +2,16 @@
 #include <string.h>
 
 // Funcao para encriptar usando XOR
-void encriptar(const unsigned char *mensagem, 
-               unsigned char *cifrado, 
-               const unsigned char *chave, 
-               int tamanho) {
-    for (int i = 0; i < tamanho; i++) {
+void encriptar(const unsigned char *mensagem, unsigned char *cifrado, const unsigned char *chave, int tamanho) 
+{
+    for (int i = 0; i < tamanho; i++) 
+    {
         cifrado[i] = mensagem[i] ^ chave[i];
     }
 }
 
-int main() {
+int main()
+ {
     char mensagem[256];
     unsigned char chave[256];
     unsigned char mensagemCifrada[256];
@@ -27,7 +27,8 @@ int main() {
 
     // Obter chave do usuario (em hex)
     printf("Digite a chave em hexadecimal (ex: 1a 2b 3c...):\n");
-    for (int i = 0; i < tamanho; i++) {
+    for (int i = 0; i < tamanho; i++) 
+    {
         scanf("%hhx", &chave[i]);
     }
 
@@ -36,7 +37,8 @@ int main() {
 
     // Exibindo resultado
     printf("\nMensagem encriptada (hex): ");
-    for (int i = 0; i < tamanho; i++) {
+    for (int i = 0; i < tamanho; i++) 
+    {
         printf("%02x ", mensagemCifrada[i]);
     }
     printf("\n");
