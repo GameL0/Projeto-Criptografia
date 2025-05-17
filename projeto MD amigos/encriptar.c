@@ -37,6 +37,22 @@ int main() {
 
     char string[1000];
 
+    char *texto = NULL;
+    int tamanho = 0;
+    char c;
+    while(c = getchar() != '\n')
+    {
+        tamanho++;
+        texto = (char*) realloc(texto, sizeof(char)*tamanho);
+        if (texto == NULL) 
+        {
+            printf("Erro ao alocar memória!\n");
+            return 1;
+        }
+    }
+
+
+
     scanf(" %[^\n]", string);
 
     int tamanhostr = strlen(string);
