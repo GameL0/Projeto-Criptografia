@@ -5,6 +5,7 @@
 
 int main()
 {
+    printf("Digite um número de 1 a 3:\n");
     int entrada;
     scanf("%d", &entrada);
     if (entrada < 1 || entrada > 3)
