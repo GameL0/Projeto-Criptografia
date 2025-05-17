@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <unistd.h>   // para getcwd()
-#include <sys/stat.h> // para mkdir(), se quiser criar diretórios
 #include <limits.h>   // para PATH_MAX
 
 int main()
@@ -61,7 +60,7 @@ int main()
         {
             printf("Digite a mensagem de texto a encriptar:\n");
             printf("\n");
-            
+
         }
 
         if (entrada == 3)
