@@ -23,7 +23,7 @@ int verificar_primo(long long a){
 
 int main()
 {
-    long long int p, q;
+    long long int p, q, chave_publica;
 
     // Scanf de dois numeros do usuario: p e q
     scanf("%lld %lld", &p, &q);
@@ -33,8 +33,7 @@ int main()
         return 0; 
     }
 
-    printf("Os números inseridos são válidos\n");
-    printf("Os números primos são: %lld e %lld\n", p, q);
+    chave_publica = p * q;
 
 
     return 0;
