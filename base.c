@@ -61,6 +61,7 @@ int main()
         {
             printf("Digite a mensagem de texto a encriptar:\n");
             printf("\n");
+            
         }
 
         if (entrada == 3)
