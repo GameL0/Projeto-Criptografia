@@ -23,7 +23,7 @@ int verificar_primo(long long a){
 
 int main()
 {
-    long long int p, q, chave_publica;
+    long long int p, q, n, z;
 
     // Scanf de dois numeros do usuario: p e q
     scanf("%lld %lld", &p, &q);
@@ -33,8 +33,15 @@ int main()
         return 0; 
     }
 
-    chave_publica = p * q;
+    n = p * q; // chave pública é o produto de p e q
+    z = (p - 1) * (q - 1); // phi(n) = (p-1)(q-1)
 
+    scanf("%lld", &e) // le a chave publica
+
+    if (e <= 1 || e >= z){
+        printf("A chave inserida é inválida. Por favor, digite uma chave válida\n");
+        return 0;
+    }
 
     return 0;
 }
