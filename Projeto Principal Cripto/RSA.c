@@ -132,7 +132,7 @@ int guardar_txt(char tipo, void* a, void* b, int tamanho)
         }
         int l = *(int*)a;
         int s = *(int*)b;
-        fprintf(arquivo, "%d %d", l, s);
+        fprintf(arquivo, "n = %d\ne = %d", l, s);
     }
     else if (tipo == 'c') // Chave Privada
     {
@@ -176,14 +176,14 @@ int conversor(char mensagem[], int mensagem_c[])
 
 int main()
 {
-    printf("Escolha uma das opcoes:\n1 - Gerar chave publica\n2 - Encriptar\n3 - Desencriptar\n\n");
+    printf("Escolha uma das opcoes:\n1 - Gerar chave publica\n2 - Encriptar\n3 - Desencriptar\n");
     int entrada;
     scanf("%d", &entrada);
     getchar();
     
     if (entrada < 1 || entrada > 3)
     {
-        printf("Opcao invalida\n");
+        printf("\nOpcao invalida\n");
         return 0;
     }
 
@@ -192,14 +192,28 @@ int main()
         if (entrada == 1)
         {
             long long p, q, e; // p e q são primos, e é coprimo a (p-1)(q-1)
-            printf("Digite um par de numeros primos (p e q):\n");
-            scanf("%lld %lld", &p, &q);
-        
+            printf("\nDigite um numero primo 'p':\n");
+            scanf("%lld",&p);
             // Verifica se p e q são primos
-            while (!verificar_primo(p) || !verificar_primo(q)) 
+            while(!verificar_primo(p))
             {
-                printf("Entrada invalida (algum numero nao eh primo). Por favor, digite dois numeros PRIMOS novamente:\n");
-                scanf("%lld %lld", &p, &q);
+                printf("\nEntrada invalida. Digite novamente um numero primo 'p':\n");
+                scanf("%lld",&p);
+            }
+        
+            printf("\nDigite um numero primo 'q':\n");
+            scanf("%lld",&q);
+            while(!verificar_primo(q) || p==q)
+            {
+                if(!verificar_primo(q))
+                {
+                    printf("\nEntrada invalida ('q' nao eh primo). Digite novamente um numero primo 'q':\n");
+                }
+                if(p==q)
+                {
+                    printf("\nEntrada invalida ('q' e 'p' sao iguais). Digite novamente um numero primo 'q':\n");
+                }
+                scanf("%lld",&q);
             }
 
             long long n = p * q; // chave pública
@@ -207,31 +221,29 @@ int main()
 
             printf("\nDigite um expoente coprimo a (p - 1)*(q - 1):\n");
             scanf("%lld", &e); // e é coprimo a (p-1)(q-1)
-            printf("\n");
 
             // Verifica se e é coprimo a (p-1)(q-1)
             while (e <= 1|| mdc(e, z) != 1) 
             {
-                printf("O numero inserido nao eh coprimo a (p - 1)*(q - 1). Por favor, digite outro numero:\n");
+                printf("\nO numero inserido nao eh coprimo a (p - 1)*(q - 1). Por favor, digite outro numero:\n");
                 scanf("%lld", &e);
             }
 
             
             guardar_txt('i', &n, &e, 0);
-            printf("Chave publica salva em publica.txt\n");
+            printf("\nChave publica salva em publica.txt\n\n");
         }
 
-        if (entrada == 2)
+        else if (entrada == 2)
         {
-            printf("Digite a mensagem a ser encriptada:\n");
+            printf("\nDigite a mensagem a ser encriptada:\n");
             char* mensagem = ler_mensagem();
-            int n, e;
-            printf("Digite 'n' da chave publica:\n");
-            scanf("%d",&n);
-            printf("Digite 'e' da chave publica:\n");
-            {
-                scanf("%d",&e);
-            }
+            long long n, e;
+            printf("\nDigite 'n' da chave publica:\n");
+            scanf("%lld",&n);
+            printf("\nDigite 'e' da chave publica:\n");
+            scanf("%lld",&e);
+
             int tamanho = strlen(mensagem);
             int *mens = (int *)malloc(tamanho * sizeof(int));
             int limite = conversor(mensagem,mens);
@@ -240,22 +252,48 @@ int main()
                 mens[i] = modpow((int)mens[i],e,n);
             }
             guardar_txt('c',mens,NULL, limite);
-            printf("Mensagem encriptada em encriptado.txt\n");
+            printf("\nMensagem encriptada em encriptado.txt\n\n");
             free(mens);
             free(mensagem);
         }
 
-        if (entrada == 3)
+        else //Entrada == 3
         {
             long long p, q, e;
-            printf("\nDigite o valor de 'p' e 'q':\n"); // p e q são primos
-            scanf("%lld%lld",&p,&q);
-            printf("\nDigite a chave publica 'e':\n"); // e é coprimo a (p-1)(q-1)
-            scanf("%lld",&e);
-            printf("\n");
+            printf("\nDigite o valor de 'p':\n");
+            scanf("%lld",&p);
+            // Verifica se p e q são primos
+            while(!verificar_primo(p))
+            {
+                printf("\nEntrada invalida. Digite novamente o valor de 'p':\n");
+                scanf("%lld",&p);
+            }
+        
+            printf("\nDigite o valor de 'q':\n");
+            scanf("%lld",&q);
+            while(!verificar_primo(q) || p==q)
+            {
+                if(!verificar_primo(q))
+                {
+                    printf("\nEntrada invalida ('q' nao eh primo). Digite novamente o valor de 'q':\n");
+                }
+                else
+                {
+                    printf("\nEntrada invalida ('q' e 'p' sao iguais). Digite novamente o valor de 'q':\n");
+                }
+                scanf("%lld",&q);
+            }
 
             long long n = p * q; // chave pública
             long long z = (p - 1) * (q - 1); // para fazer a chave privada d;
+            printf("\nDigite a chave publica 'e':\n"); // e é coprimo a (p-1)(q-1)
+            scanf("%lld",&e);
+            while (e <= 1|| mdc(e, z) != 1) 
+            {
+                printf("\nChave inválida, digite 'e' novamente:\n");
+                scanf("%lld", &e);
+            }
+
             long long d = mod_inverso (e, z); // d é o inverso do valor e
 
             // Ler o arquivo
@@ -310,6 +348,7 @@ int main()
             guardar_txt('s',mensagem,NULL,count+1);
             free(codigos_crip);
             free(mensagem);
+            printf("\nMensagem descriptografada em descriptado.txt\n\n");
         }
     }
     return 0;
