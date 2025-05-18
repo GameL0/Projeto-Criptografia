@@ -155,11 +155,8 @@ int guardar_txt(char tipo, void* a, void* b, int tamanho)
             perror("Erro ao abrir o arquivo\n");
             return 1;
         }
-        int *m = (int*)a;
-        for(int i = 0; i<tamanho; i++) 
-        {
-            fprintf(arquivo,"%c", (char)*(m+i));
-        }
+        char *mensagem = (char*)a;
+        fprintf(arquivo,"%s",mensagem);
     }
     fclose(arquivo);
     return 0;
@@ -272,7 +269,7 @@ int main()
             }
 
             // Conta quantos números tem no arquivo
-            int count = 1;
+            int count = 0;
             int temp;
             while (fscanf(arquivo, "%d", &temp) == 1) // ler os números no arquivo.txt
             {
@@ -293,7 +290,7 @@ int main()
             
             // Lê os números do arquivo e aplica a fórmula de descriptografia
             // e armazena no vetor codigos_crip
-            for(int i = 0; i<(count-1); i++)
+            for(int i = 0; i<count; i++)
             {
                 if (fscanf(arquivo, "%d", &codigos_crip[i]) != 1)
                 {
@@ -303,13 +300,16 @@ int main()
                     return 1;
                 }
                 codigos_crip[i] = modpow(codigos_crip[i],d,n);
-                if(codigos_crip[i] == 28) codigos_crip = 32;
+                if(codigos_crip[i] == 28) codigos_crip[i] = 32;
                 else codigos_crip[i] += 63;
             }
-            codigos_crip[count - 1] = 10; 
+            char* mensagem = (char*)malloc(count+1);
+            for(int i = 0; i<count; i++) mensagem[i] = (char)codigos_crip[i];
+            mensagem[count+1] = '\0';
             fclose(arquivo);
-            guardar_txt('s',codigos_crip,NULL,count+1);
+            guardar_txt('s',mensagem,NULL,count+1);
             free(codigos_crip);
+            free(mensagem);
         }
     }
     return 0;
