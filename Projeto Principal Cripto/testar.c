@@ -79,21 +79,19 @@ long long int mdc(long long int p, long long int q)
     return p; // mdc
 }
 
-int mdc_extendido(long long a, long long b, long long *x, long long *y)
+void mdc_extendido(long long a, long long b, long long *x, long long *y)
 {
     if (b == 0)
     {
         *x = 1;
         *y = 0;
-        return a;
+        return;
     }
 
-    int x1, y1;
-    
+    long long x1, y1;
+    mdc_extendido(b, a % b, &x1, &y1);
     *x = y1;
     *y = x1 - (a / b) * y1;
-
-    return mdc_extendido(b, a % b, &x1, &y1);
 }
 
 
@@ -101,13 +99,16 @@ long long int mod_inverso(long long a, long long m)
 {
     long long x,y;
     mdc_extendido(a, m, &x, &y);
-
     return (x % m + m) % m; // garante que o resultado seja positivo
 }
 
-
 int guardar_txt(char tipo, void* a, void* b, int tamanho)
 {
+    // Cria o arquivo no diretório atual
+    // e salva os dados nele
+    // Se o arquivo já existir, ele será sobrescrito
+    // Se o arquivo não existir, ele será criado
+    
     char diretorio[PATH_MAX - 32];
     char novo_arquivo[PATH_MAX];
     if (getcwd(diretorio, sizeof(diretorio)) == NULL)
@@ -115,48 +116,44 @@ int guardar_txt(char tipo, void* a, void* b, int tamanho)
         perror("Nao foi possivel rastrear o diretorio atual\n");
         return 1;
     }
-    
     FILE *arquivo;
-
-    
     if (tipo == 'i') // Chave Publica
     {
-        arquivo = fopen("publica.txt", "w");
+        snprintf(novo_arquivo, sizeof(novo_arquivo), "%s/publica.txt", diretorio);
+        arquivo = fopen(novo_arquivo, "w");
         if (arquivo == NULL)
         {
             perror("Erro ao abrir o arquivo\n");
             return 1;
         }
-        snprintf(novo_arquivo, sizeof(novo_arquivo), "%s/publica.txt", diretorio);
         int l = *(int*)a;
         int s = *(int*)b;
         fprintf(arquivo, "%d %d", l, s);
     }
     else if (tipo == 'c') // Chave Privada
     {
-        arquivo = fopen("encriptado.txt", "w");
+        snprintf(novo_arquivo, sizeof(novo_arquivo), "%s/encriptado.txt", diretorio);
+        arquivo = fopen(novo_arquivo, "w");
         if (arquivo == NULL)
         {
             perror("Erro ao abrir o arquivo\n");
             return 1;
         }
-        snprintf(novo_arquivo, sizeof(novo_arquivo), "%s/encriptado.txt", diretorio);
         int* m = (int*)a;
         for(int i = 0; i<tamanho; i++) fprintf(arquivo, "%d ", *(m+i));
     }
     else // Mensagem Descriptografada
     {
-        arquivo = fopen("descriptado.txt", "w");
+        snprintf(novo_arquivo, sizeof(novo_arquivo), "%s/descriptado.txt", diretorio);
+        arquivo = fopen(novo_arquivo, "w");
         if (arquivo == NULL)
         {
             perror("Erro ao abrir o arquivo\n");
             return 1;
         }
-        snprintf(novo_arquivo, sizeof(novo_arquivo), "%s/descriptado.txt", diretorio);
-        char *mensagem = (char*)a;
-        fprintf(arquivo, "%s", mensagem);
+        int *m = (int*)a;
+        for(int i = 0; i<tamanho; i++) fprintf(arquivo,"%c", *(m+i));
     }
-    
     fclose(arquivo);
     return 0;
 }
@@ -168,6 +165,18 @@ int conversor(char mensagem[], int mensagem_c[])
     {
         if(mensagem[i] == 32) mensagem_c[i] = 28;
         else mensagem_c[i] = mensagem[i] - 63;
+        i++;
+    }
+    return i;
+}
+
+int conversor_inverso(char mensagem[], int mensagem_c[])
+{
+    int i = 0;
+    while(mensagem[i]!='\0' && mensagem[i]!='\n')
+    {
+        if(mensagem[i] == 28) mensagem_c[i] = 32;
+        else mensagem_c[i] = mensagem[i] + 63;
         i++;
     }
     return i;
@@ -190,10 +199,11 @@ int main()
     {
         if (entrada == 1)
         {
-            long long p, q, e;
+            long long p, q, e; // p e q são primos, e é coprimo a (p-1)(q-1)
             printf("Digite um par de numeros primos (p e q):\n");
             scanf("%lld %lld", &p, &q);
         
+            // Verifica se p e q são primos
             while (!verificar_primo(p) || !verificar_primo(q)) 
             {
                 printf("Entrada invalida (algum numero nao eh primo). Por favor, digite dois numeros PRIMOS novamente:\n");
@@ -204,15 +214,17 @@ int main()
             long long z = (p - 1) * (q - 1); // para criar a outra chave pública;
 
             printf("\nDigite um expoente coprimo a (p - 1)*(q - 1):\n");
-            scanf("%lld", &e);
+            scanf("%lld", &e); // e é coprimo a (p-1)(q-1)
             printf("\n");
 
+            // Verifica se e é coprimo a (p-1)(q-1)
             while (e <= 1|| mdc(e, z) != 1) 
             {
-                printf("O numero inserido nao eh coprimo. Por favor, digite outro numero:\n");
+                printf("O numero inserido nao eh coprimo a (p - 1)*(q - 1). Por favor, digite outro numero:\n");
                 scanf("%lld", &e);
             }
 
+            
             guardar_txt('i', &n, &e, 0);
             printf("Chave publica e privada geradas e salvas em dados.txt\n");
         }
@@ -243,34 +255,63 @@ int main()
         if (entrada == 3)
         {
             long long p, q, e;
-            printf("Dê o valor de 'p' e 'q':\n");
+            printf("\nDigite o valor de 'p' e 'q':\n"); // p e q são primos
             scanf("%lld%lld",&p,&q);
-            printf("Dê a chave publica 'e':\n");
-            scanf("%d",&e);
+            printf("\nDigite a chave publica 'e':\n"); // e é coprimo a (p-1)(q-1)
+            scanf("%lld",&e);
             printf("\n");
 
+            long long n = p * q; // chave pública
             long long z = (p - 1) * (q - 1); // para fazer a chave privada d;
+            long long d = mod_inverso (e, z); // d é o inverso do valor e
 
+            // Ler o arquivo
             FILE *arquivo = fopen("dados.txt", "r");
+
+            // Verifica se o arquivo foi aberto corretamente
             if (arquivo == NULL)
             {
                 perror("Erro ao abrir o arquivo\n");
                 return 1;
             }
 
-            // d é o inverso do valor e
-            long long d = mod_inverso (e, z);
-            
-            int valor;
-            while (fscanf(arquivo, "%d", &valor) == 1)
+            // Conta quantos números tem no arquivo
+            int count = 1;
+            int temp;
+            while (fscanf(arquivo, "%d", &temp) == 1) // ler os números no arquivo.txt
             {
-                valor = modpow(valor, d, n);
-                fprintf(arquivo, "%d", valor);
-                // converter numeros pra letras
+                count++;
             }
 
+            // Reseta o ponteiro do arquivo para o início
+            rewind(arquivo);
+            
+            int* codigos_crip = (int*)malloc(count*(sizeof(int))); // aloca o espaço para os números
+            
+            // Verifica se a alocação foi bem-sucedida
+            if (codigos_crip == NULL) 
+            {
+                perror("Erro ao alocar memoria");
+                exit(1);
+            }
+            
+            // Lê os números do arquivo e aplica a fórmula de descriptografia
+            // e armazena no vetor codigos_crip
+            for(int i = 0; i<(count-1); i++)
+            {
+                if (fscanf(arquivo, "%d", &codigos_crip[i]) != 1)
+                {
+                    perror("Erro ao ler o arquivo\n");
+                    free(codigos_crip);
+                    fclose(arquivo);
+                    return 1;
+                }
+                codigos_crip[i] = modpow(codigos_crip[i],d,n);
+            }
+            codigos_crip[count] = 10; 
             fclose(arquivo);
-            return 0;
+            guardar_txt('s',codigos_crip,NULL,count+1);
+            free(codigos_crip);
         }
     }
     return 0;
