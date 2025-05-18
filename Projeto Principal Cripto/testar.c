@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <limits.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <ctype.h>
+#include <limits.h> // path_max
+#include <unistd.h> // getcwd()
+#include <stdlib.h> // malloc, realloc, free, exit
+#include <math.h>   // sqrt()
+#include <string.h> // strlen()
+#include <ctype.h>  // toupper()
 
 
 long long modpow(long long base, long long exp, long long mod)
