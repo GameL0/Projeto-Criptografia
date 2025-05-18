@@ -104,18 +104,22 @@ long long int mod_inverso(long long a, long long m)
 
 int guardar_txt(char tipo, void* a, void* b, int tamanho)
 {
-    // Cria o arquivo no diretório atual
-    // e salva os dados nele
-    // Se o arquivo já existir, ele será sobrescrito
-    // Se o arquivo não existir, ele será criado
+    /* Cria o arquivo no diretório atual
+    e salva os dados nele
+    Se o arquivo já existir, ele será sobrescrito
+    Se o arquivo não existir, ele será criado */
     
-    char diretorio[PATH_MAX - 32];
-    char novo_arquivo[PATH_MAX];
-    if (getcwd(diretorio, sizeof(diretorio)) == NULL)
+    char diretorio[PATH_MAX - 32]; // -32 para evitar overflow
+    char novo_arquivo[PATH_MAX]; 
+
+    // Obtém o diretório atual
+    if (getcwd(diretorio, sizeof(diretorio)) == NULL) 
     {
         perror("Nao foi possivel rastrear o diretorio atual\n");
         return 1;
     }
+
+    // Cria o arquivo no diretório atual
     FILE *arquivo;
     if (tipo == 'i') // Chave Publica
     {
@@ -152,7 +156,10 @@ int guardar_txt(char tipo, void* a, void* b, int tamanho)
             return 1;
         }
         int *m = (int*)a;
-        for(int i = 0; i<tamanho; i++) fprintf(arquivo,"%c", *(m+i));
+        for(int i = 0; i<tamanho; i++) 
+        {
+            fprintf(arquivo,"%c", (char)*(m+i));
+        }
     }
     fclose(arquivo);
     return 0;
@@ -165,18 +172,6 @@ int conversor(char mensagem[], int mensagem_c[])
     {
         if(mensagem[i] == 32) mensagem_c[i] = 28;
         else mensagem_c[i] = mensagem[i] - 63;
-        i++;
-    }
-    return i;
-}
-
-int conversor_inverso(char mensagem[], int mensagem_c[])
-{
-    int i = 0;
-    while(mensagem[i]!='\0' && mensagem[i]!='\n')
-    {
-        if(mensagem[i] == 28) mensagem_c[i] = 32;
-        else mensagem_c[i] = mensagem[i] + 63;
         i++;
     }
     return i;
@@ -226,7 +221,7 @@ int main()
 
             
             guardar_txt('i', &n, &e, 0);
-            printf("Chave publica e privada geradas e salvas em dados.txt\n");
+            printf("Chave publica salva em publica.txt\n");
         }
 
         if (entrada == 2)
@@ -248,6 +243,7 @@ int main()
                 mens[i] = modpow((int)mens[i],e,n);
             }
             guardar_txt('c',mens,NULL, limite);
+            printf("Mensagem encriptada em encriptado.txt\n");
             free(mens);
             free(mensagem);
         }
@@ -307,8 +303,9 @@ int main()
                     return 1;
                 }
                 codigos_crip[i] = modpow(codigos_crip[i],d,n);
+                if(codigos_crip[i] = 28) =  
             }
-            codigos_crip[count] = 10; 
+            codigos_crip[count - 1] = 10; 
             fclose(arquivo);
             guardar_txt('s',codigos_crip,NULL,count+1);
             free(codigos_crip);
