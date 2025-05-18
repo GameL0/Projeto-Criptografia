@@ -303,7 +303,8 @@ int main()
                     return 1;
                 }
                 codigos_crip[i] = modpow(codigos_crip[i],d,n);
-                if(codigos_crip[i] = 28) =  
+                if(codigos_crip[i] == 28) codigos_crip = 32;
+                else codigos_crip[i] += 63;
             }
             codigos_crip[count - 1] = 10; 
             fclose(arquivo);
